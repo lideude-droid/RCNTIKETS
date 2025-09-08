@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCN Tickets - Sistema de Bilhetes Roblox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .nav {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .nav button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav button:hover, .nav button.active {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .game-card {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .ticket-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .qr-code canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .user-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .admin-panel {
+            border: 3px solid #ff9800;
+            border-radius: 10px;
+            padding: 20px;
+            background: #fff3e0;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #28a745;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .ticket-info {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 RCN TICKETS</h1>
+            <p>Sistema de Bilhetes para Jogos Roblox</p>
+        </div>
+
+        <div class="nav">
+            <button onclick="showSection('home')" class="active">🏠 Início</button>
+            <button onclick="showSection('games')">🎯 Jogos</button>
+            <button onclick="showSection('profile')">👤 Perfil</button>
+            <button onclick="showSection('admin')">⚙️ Admin</button>
+            <button onclick="showSection('auth')">🔐 Login/Registro</button>
+        </div>
+
+        <!-- Seção de Início -->
+        <div id="home" class="section active">
+            <h2>🎊 Bem-vindo ao RCN Tickets!</h2>
+            <p>Compra bilhetes para os melhores jogos de Roblox da comunidade RCN.</p>
+            
+            <div id="homeContent">
+                <div class="user-info" id="userWelcome" style="display: none;">
+                    <h3>👋 Olá, <span id="welcomeName"></span>!</h3>
+                    <p>Discord: <span id="welcomeDiscord"></span></p>
+                    <p>Bilhete atual: <span id="welcomeTicket">Nenhum</span></p>
+                </div>
+                
+                <div id="loginPrompt">
+                    <p>Por favor, faça login para comprar bilhetes.</p>
+                    <button class="btn" onclick="showSection('auth')">Fazer Login</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Jogos -->
+        <div id="games" class="section">
+            <h2>🎯 Jogos Disponíveis</h2>
+            <div id="gamesList">
+                <p>Nenhum jogo disponível no momento.</p>
+            </div>
+        </div>
+
+        <!-- Seção de Perfil -->
+        <div id="profile" class="section">
+            <h2>👤 Meu Perfil</h2>
+            <div id="profileContent">
+                <div id="profileInfo" style="display: none;">
+                    <div class="user-info">
+                        <h3>Informações da Conta</h3>
+                        <p><strong>Nome:</strong> <span id="profileName"></span></p>
+                        <p><strong>Discord:</strong> <span id="profileDiscord"></span></p>
+                        <p><strong>Bilhete Atual:</strong> <span id="profileTicket">Nenhum</span></p>
+                    </div>
+                    
+                    <div id="ticketQR" style="display: none;">
+                        <h3>🎫 Seu Bilhete</h3>
+                        <div class="qr-code" id="qrContainer"></div>
+                        <p><strong>Tipo:</strong> <span id="ticketType"></span></p>
+                        <p><strong>Jogo:</strong> <span id="ticketGame"></span></p>
+                    </div>
+                    
+                    <button class="btn btn-danger" onclick="logout()">Sair</button>
+                </div>
+                
+                <div id="profileLogin">
+                    <p>Faça login para ver seu perfil.</p>
+                    <button class="btn" onclick="showSection('auth')">Fazer Login</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel Admin -->
+        <div id="admin" class="section">
+            <div class="admin-panel">
+                <h2>⚙️ Painel Administrativo</h2>
+                
+                <div id="adminLogin">
+                    <div class="form-group">
+                        <label>Usuário Admin:</label>
+                        <input type="text" id="adminUser" placeholder="Digite o usuário admin">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha Admin:</label>
+                        <input type="password" id="adminPass" placeholder="Digite a senha admin">
+                    </div>
+                    <button class="btn" onclick="adminLogin()">Entrar como Admin</button>
+                </div>
+
+                <div id="adminPanel" style="display: none;">
+                    <h3>✨ Criar Novo Jogo</h3>
+                    <div class="form-group">
+                        <label>Nome do Jogo:</label>
+                        <input type="text" id="gameName" placeholder="Ex: Battle Royale">
+                    </div>
+                    <div class="form-group">
+                        <label>Equipe 1:</label>
+                        <input type="text" id="team1" placeholder="Nome da primeira equipe">
+                    </div>
+                    <div class="form-group">
+                        <label>Equipe 2:</label>
+                        <input type="text" id="team2" placeholder="Nome da segunda equipe">
+                    </div>
+                    <div class="form-group">
+                        <label>Data e Hora do Jogo:</label>
+                        <input type="datetime-local" id="gameTime">
+                    </div>
+                    <div class="form-group">
+                        <label>Bilhetes Normais Disponíveis:</label>
+                        <input type="number" id="normalTickets" value="50" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Bilhetes VIP Disponíveis:</label>
+                        <input type="number" id="vipTickets" value="20" min="1">
+                    </div>
+                    <button class="btn" onclick="createGame()">🎮 Criar Jogo</button>
+                    
+                    <div id="adminGamesList"></div>
+                    
+                    <button class="btn btn-danger" onclick="adminLogout()">Sair do Admin</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Login/Registro -->
+        <div id="auth" class="section">
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <!-- Login -->
+                <div style="flex: 1; min-width: 300px;">
+                    <h2>🔐 Login</h2>
+                    <div class="form-group">
+                        <label>Nome do Discord:</label>
+                        <input type="text" id="loginDiscord" placeholder="seu_discord#1234">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha:</label>
+                        <input type="password" id="loginPassword" placeholder="Sua senha">
+                    </div>
+                    <button class="btn" onclick="login()">Entrar</button>
+                </div>
+
+                <!-- Registro -->
+                <div style="flex: 1; min-width: 300px;">
+                    <h2>📝 Criar Conta</h2>
+                    <div class="form-group">
+                        <label>Nome:</label>
+                        <input type="text" id="registerName" placeholder="Seu nome">
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Discord:</label>
+                        <input type="text" id="registerDiscord" placeholder="seu_discord#1234">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha:</label>
+                        <input type="password" id="registerPassword" placeholder="Crie uma senha">
+                    </div>
+                    <button class="btn" onclick="register()">Criar Conta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <script>
+        // Simulação de base de dados (em produção seria uma base de dados real)
+        let users = JSON.parse(localStorage.getItem('rcn_users') || '{}');
+        let games = JSON.parse(localStorage.getItem('rcn_games') || '[]');
+        let currentUser = JSON.parse(localStorage.getItem('rcn_current_user') || 'null');
+        let isAdmin = false;
+
+        // Webhook do Discord (substitua pela sua URL)
+        const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1414710361093050469/EbXZ0f84FcIo4Bsqs4JRtKgkk1qRhi9skQss7kXVSbV0z3NqgHOrWXg3XWVDYR_jO-cE';
+
+        function showSection(sectionName) {
+            // Esconder todas as seções
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remover classe active dos botões
+            document.querySelectorAll('.nav button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar seção selecionada
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Ativar botão correspondente
+            event.target.classList.add('active');
+            
+            // Atualizar conteúdo baseado no login
+            updateContent();
+        }
+
+        function updateContent() {
+            if (currentUser) {
+                // Usuário logado
+                document.getElementById('userWelcome').style.display = 'block';
+                document.getElementById('loginPrompt').style.display = 'none';
+                document.getElementById('welcomeName').textContent = currentUser.name;
+                document.getElementById('welcomeDiscord').textContent = currentUser.discord;
+                document.getElementById('welcomeTicket').textContent = currentUser.ticket || 'Nenhum';
+                
+                // Profile
+                document.getElementById('profileInfo').style.display = 'block';
+                document.getElementById('profileLogin').style.display = 'none';
+                document.getElementById('profileName').textContent = currentUser.name;
+                document.getElementById('profileDiscord').textContent = currentUser.discord;
+                document.getElementById('profileTicket').textContent = currentUser.ticket || 'Nenhum';
+                
+                if (currentUser.ticket) {
+                    showTicketQR();
+                }
+            } else {
+                // Usuário não logado
+                document.getElementById('userWelcome').style.display = 'none';
+                document.getElementById('loginPrompt').style.display = 'block';
+                document.getElementById('profileInfo').style.display = 'none';
+                document.getElementById('profileLogin').style.display = 'block';
+            }
+            
+            updateGamesList();
+        }
+
+        function register() {
+            const name = document.getElementById('registerName').value.trim();
+            const discord = document.getElementById('registerDiscord').value.trim();
+            const password = document.getElementById('registerPassword').value;
+
+            if (!name || !discord || !password) {
+                alert('❌ Preencha todos os campos!');
+                return;
+            }
+
+            if (users[discord]) {
+                alert('❌ Já existe uma conta com este Discord!');
+                return;
+            }
+
+            users[discord] = {
+                name: name,
+                discord: discord,
+                password: password,
+                ticket: null,
+                ticketType: null,
+                ticketGame: null
+            };
+
+            localStorage.setItem('rcn_users', JSON.stringify(users));
+            
+            showMessage('✅ Conta criada com sucesso!', 'success');
+            
+            // Limpar formulário
+            document.getElementById('registerName').value = '';
+            document.getElementById('registerDiscord').value = '';
+            document.getElementById('registerPassword').value = '';
+        }
+
+        function login() {
+            const discord = document.getElementById('loginDiscord').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!discord || !password) {
+                alert('❌ Preencha todos os campos!');
+                return;
+            }
+
+            if (!users[discord] || users[discord].password !== password) {
+                alert('❌ Discord ou senha incorretos!');
+                return;
+            }
+
+            currentUser = users[discord];
+            localStorage.setItem('rcn_current_user', JSON.stringify(currentUser));
+            
+            showMessage('✅ Login realizado com sucesso!', 'success');
+            updateContent();
+            showSection('home');
+            
+            // Limpar formulário
+            document.getElementById('loginDiscord').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('rcn_current_user');
+            updateContent();
+            showMessage('✅ Logout realizado com sucesso!', 'success');
+            showSection('home');
+        }
+
+        function adminLogin() {
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+
+            if (user === 'RCN' && pass === 'STAFFRCN') {
+                isAdmin = true;
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                showMessage('✅ Acesso admin autorizado!', 'success');
+                updateAdminGamesList();
+            } else {
+                alert('❌ Credenciais de admin incorretas!');
+            }
+        }
+
+        function adminLogout() {
+            isAdmin = false;
+            document.getElementById('adminLogin').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminUser').value = '';
+            document.getElementById('adminPass').value = '';
+        }
+
+        function createGame() {
+            if (!isAdmin) return;
+
+            const gameName = document.getElementById('gameName').value.trim();
+            const team1 = document.getElementById('team1').value.trim();
+            const team2 = document.getElementById('team2').value.trim();
+            const gameTime = document.getElementById('gameTime').value;
+            const normalTickets = parseInt(document.getElementById('normalTickets').value);
+            const vipTickets = parseInt(document.getElementById('vipTickets').value);
+
+            if (!gameName || !team1 || !team2 || !gameTime) {
+                alert('❌ Preencha todos os campos!');
+                return;
+            }
+
+            const game = {
+                id: Date.now(),
+                name: gameName,
+                team1: team1,
+                team2: team2,
+                time: gameTime,
+                normalTickets: normalTickets,
+                vipTickets: vipTickets,
+                soldNormal: 0,
+                soldVip: 0,
+                created: new Date().toISOString()
+            };
+
+            games.push(game);
+            localStorage.setItem('rcn_games', JSON.stringify(games));
+            
+            showMessage('✅ Jogo criado com sucesso!', 'success');
+            
+            // Limpar formulário
+            document.getElementById('gameName').value = '';
+            document.getElementById('team1').value = '';
+            document.getElementById('team2').value = '';
+            document.getElementById('gameTime').value = '';
+            document.getElementById('normalTickets').value = '50';
+            document.getElementById('vipTickets').value = '20';
+            
+            updateGamesList();
+            updateAdminGamesList();
+        }
+
+        function updateGamesList() {
+            const gamesContainer = document.getElementById('gamesList');
+            
+            if (games.length === 0) {
+                gamesContainer.innerHTML = '<p>Nenhum jogo disponível no momento.</p>';
+                return;
+            }
+
+            let html = '';
+            games.forEach(game => {
+                const gameTime = new Date(game.time);
+                const now = new Date();
+                const canBuy = now >= gameTime;
+                
+                html += `
+                    <div class="game-card">
+                        <h3>🎮 ${game.name}</h3>
+                        <p><strong>⚔️ ${game.team1} VS ${game.team2}</strong></p>
+                        <p>📅 Data: ${gameTime.toLocaleDateString('pt-PT')} às ${gameTime.toLocaleTimeString('pt-PT')}</p>
+                        
+                        <div class="timer" id="timer-${game.id}"></div>
+                        
+                        <div class="ticket-info">
+                            <div>
+                                <h4>🎫 Bilhetes Normais</h4>
+                                <p>Disponíveis: ${game.normalTickets - game.soldNormal}/${game.normalTickets}</p>
+                                ${currentUser && !currentUser.ticket && canBuy && (game.normalTickets - game.soldNormal) > 0 ? 
+                                    `<button class="btn" onclick="buyTicket(${game.id}, 'normal')">Comprar Normal</button>` : ''}
+                            </div>
+                            <div>
+                                <h4>⭐ Bilhetes VIP</h4>
+                                <p>Disponíveis: ${game.vipTickets - game.soldVip}/${game.vipTickets}</p>
+                                ${currentUser && !currentUser.ticket && canBuy && (game.vipTickets - game.soldVip) > 0 ? 
+                                    `<button class="btn" onclick="buyTicket(${game.id}, 'vip')">Comprar VIP</button>` : ''}
+                            </div>
+                        </div>
+                        
+                        ${!currentUser ? '<p><em>Faça login para comprar bilhetes</em></p>' : ''}
+                        ${currentUser && currentUser.ticket ? '<p><em>Você já possui um bilhete</em></p>' : ''}
+                        ${!canBuy ? '<p><em>Vendas ainda não iniciaram</em></p>' : ''}
+                    </div>
+                `;
+            });
+            
+            gamesContainer.innerHTML = html;
+            
+            // Iniciar timers
+            games.forEach(game => {
+                startTimer(game.id, new Date(game.time));
+            });
+        }
+
+        function startTimer(gameId, gameTime) {
+            const timerElement = document.getElementById(`timer-${gameId}`);
+            if (!timerElement) return;
+            
+            function updateTimer() {
+                const now = new Date();
+                const diff = gameTime - now;
+                
+                if (diff <= 0) {
+                    timerElement.innerHTML = '⏰ Vendas Disponíveis!';
+                    timerElement.style.color = '#27ae60';
+                    return;
+                }
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                timerElement.innerHTML = `⏱️ Vendas em: ${hours}h ${minutes}m ${seconds}s`;
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        function buyTicket(gameId, ticketType) {
+            if (!currentUser) {
+                alert('❌ Faça login primeiro!');
+                return;
+            }
+            
+            if (currentUser.ticket) {
+                alert('❌ Você já possui um bilhete!');
+                return;
+            }
+            
+            const game = games.find(g => g.id === gameId);
+            if (!game) return;
+            
+            const gameTime = new Date(game.time);
+            const now = new Date();
+            
+            if (now < gameTime) {
+                alert('❌ As vendas ainda não começaram!');
+                return;
+            }
+            
+            if (ticketType === 'normal' && game.soldNormal >= game.normalTickets) {
+                alert('❌ Bilhetes normais esgotados!');
+                return;
+            }
+            
+            if (ticketType === 'vip' && game.soldVip >= game.vipTickets) {
+                alert('❌ Bilhetes VIP esgotados!');
+                return;
+            }
+            
+            // Atualizar contadores
+            if (ticketType === 'normal') {
+                game.soldNormal++;
+            } else {
+                game.soldVip++;
+            }
+            
+            // Atualizar usuário
+            const ticketId = `${game.id}-${ticketType}-${Date.now()}`;
+            currentUser.ticket = ticketId;
+            currentUser.ticketType = ticketType;
+            currentUser.ticketGame = game.name;
+            
+            // Salvar alterações
+            users[currentUser.discord] = currentUser;
+            localStorage.setItem('rcn_users', JSON.stringify(users));
+            localStorage.setItem('rcn_games', JSON.stringify(games));
+            localStorage.setItem('rcn_current_user', JSON.stringify(currentUser));
+            
+            // Download do QR Code baseado no tipo
+            downloadQRCode(ticketType);
+            
+            // Enviar log para Discord
+            sendDiscordLog(currentUser, game, ticketType);
+            
+            showMessage(`✅ Bilhete ${ticketType} comprado com sucesso! QR Code baixado automaticamente!`, 'success');
+            updateContent();
+            updateGamesList();
+        }
+
+        function downloadQRCode(ticketType) {
+            // QR Code Normal (Imagem 1)
+            const normalQRData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAACAASURBVHic7N0JeFTV/cfx7+xbZrKQhCUgOwQFQQFRUKFaW6u11tZaW1vbWrXVtv61tfWvrbb+W62t1r3a1tZqrXutC4qyyCKyg+wJCQFCEpLJZPY7/+/c3JnJTBIIZCYTfs/neTzDMvee+z3n3pl8595z7jk2hBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIII'
+        }
+        function sendDiscordLog(user, game, ticketType) {
+            // Simular envio para Discord (substitua pela implementação real)
+            const message = {
+                content: `🎫 **Nova Compra de Bilhete**\n**Utilizador:** ${user.name}\n**Discord:** ${user.discord}\n**Bilhete:** ${ticketType.toUpperCase()}\n**Jogo:** ${game.name} (${game.team1} vs ${game.team2})\n**Hora:** ${new Date().toLocaleString('pt-PT')}`
+            };
+            
+            // Em produção, envie para o webhook:
+             fetch(DISCORD_WEBHOOK, {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(message)
+             });
+            
+            console.log('📤 Log enviado para Discord:', message.content);
+        }
+
+        function showTicketQR() {
+            const qrContainer = document.getElementById('qrContainer');
+            const ticketQR = document.getElementById('ticketQR');
+            
+            if (!currentUser.ticket) return;
+            
+            ticketQR.style.display = 'block';
+            document.getElementById('ticketType').textContent = currentUser.ticketType.toUpperCase();
+            document.getElementById('ticketGame').textContent = currentUser.ticketGame;
+            
+            // Gerar QR Code baseado no tipo de bilhete
+            const searchTerm = currentUser.ticketType === 'vip' ? 'RCNONTOP' : 'RCN';
+            const qrText = `https://www.google.com/search?q=${searchTerm}`;
+            
+            qrContainer.innerHTML = '';
+            QRCode.toCanvas(qrText, { width: 200, height: 200 }, function (error, canvas) {
+                if (error) console.error(error);
+                qrContainer.appendChild(canvas);
+            });
+        }
+
+        function updateAdminGamesList() {
+            if (!isAdmin) return;
+            
+            const container = document.getElementById('adminGamesList');
+            
+            if (games.length === 0) {
+                container.innerHTML = '<h3>📋 Nenhum jogo criado ainda</h3>';
+                return;
+            }
+            
+            let html = '<h3>📋 Jogos Criados</h3>';
+            games.forEach(game => {
+                html += `
+                    <div class="game-card">
+                        <h4>${game.name}</h4>
+                        <p>${game.team1} vs ${game.team2}</p>
+                        <p>Data: ${new Date(game.time).toLocaleString('pt-PT')}</p>
+                        <p>Normais: ${game.soldNormal}/${game.normalTickets} | VIP: ${game.soldVip}/${game.vipTickets}</p>
+                        <button class="btn btn-danger" onclick="deleteGame(${game.id})">🗑️ Eliminar</button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function deleteGame(gameId) {
+            if (!isAdmin) return;
+            
+            if (confirm('Tem certeza que deseja eliminar este jogo?')) {
+                games = games.filter(g => g.id !== gameId);
+                localStorage.setItem('rcn_games', JSON.stringify(games));
+                updateGamesList();
+                updateAdminGamesList();
+                showMessage('✅ Jogo eliminado com sucesso!', 'success');
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        // Inicializar aplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            updateContent();
+        });
+
+        // Configurar data mínima para hoje
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameTimeInput = document.getElementById('gameTime');
+            if (gameTimeInput) {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                
+                const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                gameTimeInput.min = minDateTime;
+            }
+        });
+    </script>
+</body>
+</html>
