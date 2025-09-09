@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RCN Tickets - Roblox Champions Network</title>
+    <link rel="shortcut icon" href="https://cdn.discordapp.com/icons/1389882316888997968/3345363185ae13aa6e05376d243180cb.png?size=2048" type="image/x-icon">
     <style>
         * {
             margin: 0;
@@ -564,6 +565,7 @@
             <button onclick="showSection('home')" class="active">🏠 Início</button>
             <button onclick="showSection('games')">🎯 Jogos</button>
             <button onclick="showSection('profile')">👤 Perfil</button>
+            <button onclick='gotoLink("http://localhost:5173/")'>📊 Site</button>
             <button onclick="showSection('admin')">⚙️ Admin</button>
             <button onclick="showSection('auth')">🔐 Login/Registro</button>
         </div>
@@ -770,6 +772,10 @@
             
             event.target.classList.add('active');
             updateContent();
+        }
+
+        function gotoLink(url) {
+            window.open(url, '_blank');
         }
 
         function updateContent() {
@@ -1257,3 +1263,4 @@
     </script>
 </body>
 </html>
+
