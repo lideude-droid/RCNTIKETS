@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -750,13 +751,13 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
     <script>
-        // Sistema de armazenamento aprimorado
+        // Sistema de armazenamento
         let users = JSON.parse(localStorage.getItem('rcn_users') || '{}');
         let games = JSON.parse(localStorage.getItem('rcn_games') || '[]');
         let currentUser = JSON.parse(localStorage.getItem('rcn_current_user') || 'null');
         let isAdmin = false;
 
-        // Webhook do Discord (substitua pela sua URL)
+        // Webhook do Discord
         const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1414710361093050469/EbXZ0f84FcIo4Bsqs4JRtKgkk1qRhi9skQss7kXVSbV0z3NqgHOrWXg3XWVDYR_jO-cE';
 
         function showSection(sectionName) {
@@ -974,6 +975,27 @@
                 const now = new Date();
                 const canBuy = now >= gameTime;
                 
+                // Determinar status dos botões
+                let normalButtonHtml = '';
+                let vipButtonHtml = '';
+                
+                if (currentUser) {
+                    if (currentUser.ticket) {
+                        normalButtonHtml = '<p style="color: #666; font-size: 0.9em;">Já possui bilhete</p>';
+                        vipButtonHtml = '<p style="color: #666; font-size: 0.9em;">Já possui bilhete</p>';
+                    } else if (canBuy) {
+                        normalButtonHtml = `<button class="btn" onclick="buyTicket(${game.id}, 'normal')">Comprar Normal</button>`;
+                        vipButtonHtml = `<button class="btn btn-warning" onclick="buyTicket(${game.id}, 'vip')">Comprar VIP</button>`;
+                    } else {
+                        normalButtonHtml = '<p style="color: #666; font-size: 0.9em;">Vendas não iniciaram</p>';
+                        vipButtonHtml = '<p style="color: #666; font-size: 0.9em;">Vendas não iniciaram</p>';
+                    }
+                } else {
+                    // Não logado - mostra opção para fazer login
+                    normalButtonHtml = '<p style="color: #666; font-size: 0.9em; cursor: pointer;" onclick="showSection(\'auth\')">🔐 Faça login para comprar</p>';
+                    vipButtonHtml = '<p style="color: #666; font-size: 0.9em; cursor: pointer;" onclick="showSection(\'auth\')">🔐 Faça login para comprar</p>';
+                }
+                
                 html += `
                     <div class="game-card">
                         <div class="game-header">
@@ -997,23 +1019,13 @@
                                 <h4>🎫 Bilhete Normal</h4>
                                 <div class="price">${game.normalPrice}</div>
                                 <p>Acesso completo ao evento</p>
-                                ${currentUser && !currentUser.ticket && canBuy ? 
-                                    `<button class="btn" onclick="buyTicket(${game.id}, 'normal')">Comprar Normal</button>` : 
-                                    !currentUser ? '<p style="color: #666; font-size: 0.9em;">Faça login para comprar</p>' :
-                                    currentUser.ticket ? '<p style="color: #666; font-size: 0.9em;">Já possui bilhete</p>' :
-                                    '<p style="color: #666; font-size: 0.9em;">Vendas não iniciaram</p>'
-                                }
+                                ${normalButtonHtml}
                             </div>
                             <div class="ticket-type vip">
                                 <h4>⭐ Bilhete VIP</h4>
                                 <div class="price">${game.vipPrice}</div>
                                 <p>Acesso VIP + benefícios exclusivos</p>
-                                ${currentUser && !currentUser.ticket && canBuy ? 
-                                    `<button class="btn btn-warning" onclick="buyTicket(${game.id}, 'vip')">Comprar VIP</button>` : 
-                                    !currentUser ? '<p style="color: #666; font-size: 0.9em;">Faça login para comprar</p>' :
-                                    currentUser.ticket ? '<p style="color: #666; font-size: 0.9em;">Já possui bilhete</p>' :
-                                    '<p style="color: #666; font-size: 0.9em;">Vendas não iniciaram</p>'
-                                }
+                                ${vipButtonHtml}
                             </div>
                         </div>
                         
@@ -1072,6 +1084,7 @@
         function buyTicket(gameId, ticketType) {
             if (!currentUser) {
                 showNotification('Faça login primeiro!', 'error');
+                showSection('auth');
                 return;
             }
             
@@ -1263,6 +1276,3 @@
     </script>
 </body>
 </html>
-
-
-
